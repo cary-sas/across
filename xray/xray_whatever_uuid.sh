@@ -24,7 +24,7 @@ function install_xray_caddy(){
     # xray
     bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install -u root
     # caddy with layer4 cloudflare-dns forwardproxy: https://github.com/mixool/caddys
-    caddyURL="$(wget -qO-  https://api.github.com/repos/caddyserver/caddy/releases | grep -E "browser_download_url.*linux_amd64\.deb" | cut -f4 -d\" | head -n1)"
+    caddyURL="$(wget -qO-  https://api.github.com/repos/caddyserver/caddy/releases | grep -E "browser_download_url.*linux_$(dpkg --print-architecture)\.deb" | cut -f4 -d\" | head -n1)"
     naivecaddyURL="https://github.com/mixool/caddys/raw/master/caddy"
     wget -O $TMPFILE $caddyURL && dpkg -i $TMPFILE
     rm -rf /usr/bin/caddy
