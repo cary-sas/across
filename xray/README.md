@@ -4,6 +4,8 @@
 * 安装:
 ```bash
 bash <(curl -s https://raw.githubusercontent.com/cary-sas/across/master/xray/xray_whatever_uuid.sh) my.domain.com
+#或者加上自定义的UUID
+bash <(curl -s https://raw.githubusercontent.com/cary-sas/across/master/xray/xray_whatever_uuid.sh) $myuuid my.domain.com
 ```
 * 卸载:
 ```bash
