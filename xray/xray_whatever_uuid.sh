@@ -16,8 +16,8 @@ vmesstcppath="${uuid}-vmesstcp"
 vmesswspath="${uuid}-vmess"
 vmessh2path="${uuid}-vmessh2"
 shadowsockspath="${uuid}-ss"
-configxray=${configxray:-https://raw.githubusercontent.com/mixool/across/master/xray/etc/xray.json}
-configcaddy=${configcaddy:-https://raw.githubusercontent.com/mixool/across/master/xray/etc/caddy.json}
+configxray=${configxray:-https://raw.githubusercontent.com/cary-sas/across/master/xray/etc/xray.json}
+configcaddy=${configcaddy:-https://raw.githubusercontent.com/cary-sas/across/master/xray/etc/caddy.json}
 ########
 
 function install_xray_caddy(){
