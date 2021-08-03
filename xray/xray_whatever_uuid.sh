@@ -24,11 +24,18 @@ function install_xray_caddy(){
     # xray
     bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install -u root
     # caddy with layer4 cloudflare-dns forwardproxy: https://github.com/mixool/caddys
-    caddyURL="$(wget -qO-  https://api.github.com/repos/caddyserver/caddy/releases | grep -E "browser_download_url.*linux_$(dpkg --print-architecture)\.deb" | cut -f4 -d\" | head -n1)"
+ #   caddyURL="$(wget -qO-  https://api.github.com/repos/caddyserver/caddy/releases | grep -E "browser_download_url.*linux_$(dpkg --print-architecture)\.deb" | cut -f4 -d\" | head -n1)"
  #   naivecaddyURL="https://github.com/mixool/caddys/raw/master/caddy"
-    wget -O $TMPFILE $caddyURL && dpkg -i $TMPFILE
+ #   wget -O $TMPFILE $caddyURL && dpkg -i $TMPFILE
  #   rm -rf /usr/bin/caddy
  #   wget --no-check-certificate -O /usr/bin/caddy $naivecaddyURL && chmod +x /usr/bin/caddy
+ 
+    apt install -y debian-keyring debian-archive-keyring apt-transport-https
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo tee /etc/apt/trusted.gpg.d/caddy-stable.asc
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+    apt update
+    apt install caddy
+ 
     sed -i "s/caddy\/Caddyfile$/caddy\/Caddyfile\.json/g" /lib/systemd/system/caddy.service && systemctl daemon-reload
 }
 
