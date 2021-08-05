@@ -23,18 +23,20 @@ configcaddy=${configcaddy:-https://raw.githubusercontent.com/cary-sas/across/mas
 function install_xray_caddy(){
     # xray
     bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install -u root
-    # caddy with layer4 cloudflare-dns forwardproxy: https://github.com/mixool/caddys
- #   caddyURL="$(wget -qO-  https://api.github.com/repos/caddyserver/caddy/releases | grep -E "browser_download_url.*linux_$(dpkg --print-architecture)\.deb" | cut -f4 -d\" | head -n1)"
- #   naivecaddyURL="https://github.com/mixool/caddys/raw/master/caddy"
- #   wget -O $TMPFILE $caddyURL && dpkg -i $TMPFILE
- #   rm -rf /usr/bin/caddy
- #   wget --no-check-certificate -O /usr/bin/caddy $naivecaddyURL && chmod +x /usr/bin/caddy
- 
-    apt install -y debian-keyring debian-archive-keyring apt-transport-https
-    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo tee /etc/apt/trusted.gpg.d/caddy-stable.asc
-    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
-    apt update
-    apt install caddy
+
+    # install Go
+    wget https://studygolang.com/dl/golang/go1.16.6.linux-$(dpkg --print-architecture).tar.gz -O - | tar -xz -C /usr/local/
+    echo -e "export PATH=\$PATH:/usr/local/go/bin\nexport PATH=\$PATH:\$HOME/.cargo/bin\nexport GOROOT=/usr/local/go\nexport GOBIN=\$GOROOT/bin\nexport PATH=\$PATH:\$GOBIN" >> ~/.profile
+    source ~/.profile
+    # install xcaddy
+    wget https://github.com/caddyserver/xcaddy/releases/download/v0.1.5/xcaddy_0.1.5_linux_$(dpkg --print-architecture).tar.gz -O - | tar -xz -C /usr/bin/
+    # compile caddy with layer4 cloudflare-dns
+    xcaddy build latest \
+        --with github.com/mholt/caddy-l4 \
+        --with github.com/caddy-dns/cloudflare \
+        --with github.com/caddyserver/forwardproxy@caddy2
+
+    mv caddy /usr/bin/caddy && chmod +x /usr/bin/caddy
  
     sed -i "s/caddy\/Caddyfile$/caddy\/Caddyfile\.json/g" /lib/systemd/system/caddy.service && systemctl daemon-reload
 }
