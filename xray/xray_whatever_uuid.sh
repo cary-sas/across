@@ -23,7 +23,14 @@ configcaddy=${configcaddy:-https://raw.githubusercontent.com/cary-sas/across/mas
 function install_xray_caddy(){
     # xray
     bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install -u root
-
+	
+	# install caddy through apt install
+    apt install -y debian-keyring debian-archive-keyring apt-transport-https
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo tee /etc/apt/trusted.gpg.d/caddy-stable.asc
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+    apt update
+    apt install caddy
+	
     # install Go
     wget https://studygolang.com/dl/golang/go1.16.6.linux-$(dpkg --print-architecture).tar.gz -O - | tar -xz -C /usr/local/
     echo -e "export PATH=\$PATH:/usr/local/go/bin\nexport PATH=\$PATH:\$HOME/.cargo/bin\nexport GOROOT=/usr/local/go\nexport GOBIN=\$GOROOT/bin\nexport PATH=\$PATH:\$GOBIN" >> ~/.profile
@@ -35,7 +42,7 @@ function install_xray_caddy(){
         --with github.com/mholt/caddy-l4 \
         --with github.com/caddy-dns/cloudflare \
         --with github.com/caddyserver/forwardproxy@caddy2
-
+	# replace caddy binary file with the compiled one
     mv caddy /usr/bin/caddy && chmod +x /usr/bin/caddy
  
     sed -i "s/caddy\/Caddyfile$/caddy\/Caddyfile\.json/g" /lib/systemd/system/caddy.service && systemctl daemon-reload
