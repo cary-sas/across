@@ -32,11 +32,11 @@ function install_xray_caddy(){
     apt install caddy
 	
     # install Go
-    wget https://studygolang.com/dl/golang/go1.17.2.linux-$(dpkg --print-architecture).tar.gz -O - | tar -xz -C /usr/local/
+    wget https://studygolang.com/dl/golang/go1.16.6.linux-$(dpkg --print-architecture).tar.gz -O - | tar -xz -C /usr/local/
     echo -e "export PATH=\$PATH:/usr/local/go/bin\nexport PATH=\$PATH:\$HOME/.cargo/bin\nexport GOROOT=/usr/local/go\nexport GOBIN=\$GOROOT/bin\nexport PATH=\$PATH:\$GOBIN" >> ~/.profile
     source ~/.profile
     # install xcaddy
-	wget https://github.com/caddyserver/xcaddy/releases/download/v0.2.0/xcaddy_0.2.0_linux_$(dpkg --print-architecture).tar.gz -O - | tar -xz -C /usr/bin/
+	wget https://github.com/caddyserver/xcaddy/releases/download/v0.1.9/xcaddy_0.1.9_linux_$(dpkg --print-architecture).tar.gz -O - | tar -xz -C /usr/bin/
     # compile caddy with layer4 cloudflare-dns
     xcaddy build latest \
         --with github.com/mholt/caddy-l4 \
