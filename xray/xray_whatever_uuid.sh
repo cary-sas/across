@@ -30,9 +30,9 @@ function install_xray_caddy(){
     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
     apt update
     apt install caddy
-	
+    caddy_url=https://github.com/lxhao61/integrated-examples/releases	
     caddy_version=$(curl -k -s  $caddy_url | grep /lxhao61/integrated-examples/releases/tag/  | head -1 | awk -F'"' '{print $6}' | awk -F/ '{print $NF}')
-    caddy_url=https://github.com/lxhao61/integrated-examples/releases
+
     wget --no-check-certificate -O $TMPFILE ${caddy_url}/download/${caddy_version}/caddy_linux_$(dpkg --print-architecture).tar.gz && tar -xf  $TMPFILE -C ./
     mv caddy /usr/bin/caddy && chmod +x /usr/bin/caddy
  
