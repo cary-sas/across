@@ -46,7 +46,7 @@ function config_xray_caddy(){
            -e "s/\$vlessh2path/$vlessh2path/g" -e "s/\$vmesstcppath/$vmesstcppath/g" -e "s/\$vmesswspath/$vmesswspath/g" -e "s/\$vmessh2path/$vmessh2path/g" \
            -e "s/\$shadowsockspath/$shadowsockspath/g" -e "s/\$domain/$domain/g" /usr/local/etc/xray/config.json
     # caddyconfig
-    wget -qO- $configcaddy | sed -e "s/\$domain/$domain/g" -e "s/\$uuid/$uuid/g" -e "s/\$vlessh2path/$vlessh2path/g" -e "s/\$vmessh2path/$vmessh2path/g" >/etc/caddy/Caddyfile.json
+    wget -qO- $configcaddy | sed -e "s/\$domain/$domain/g" -e "s/\$uuid/$uuid/g" -e "s/\$vlessh2path/$vlessh2path/g" -e "s/\$vlesspath/$vlesspath/g" -e "s/\$vmessh2path/$vmessh2path/g" >/etc/caddy/Caddyfile.json
 }
 
 function cert_acme(){
@@ -95,23 +95,29 @@ EOF
 vmessh2info="$(echo "vmess://$(base64 -w 0 $TMPFILE)")"
 
     cat <<EOF >$TMPFILE
-$(date) $domain vless:
-uuid: $uuid
-wspath: $vlesspath
-h2path: $vlessh2path
-
 $(date) $domain vmess:
 uuid: $uuid
 tcppath: $vmesstcppath
 ws+tls: $vmesswsinfo
 h2+tls: $vmessh2info
 
+$(date) $domain vless:
+uuid: $uuid
+wspath: $vlesspath
+h2path: $vlessh2path
+serviceName: $vlesspath
+xtls  : vless://$uuid@$domain:443?security=xtls&flow=xtls-rprx-direct#$domain-vless(xtls)
+ws+tls: vless://$uuid@$domain:443?sni=&host=$domain&type=ws&security=tls&path=$vlesspath&encryption=none#$domain-vless(ws) 
+h2+tls: vless://$uuid@$domain:443?sni=&host=$domain&type=h2&security=tls&path=$vlessh2path&encryption=none#$domain-vless(h2) 
+gRPC  : vless://$uuid@$domain:443?sni=&host=$domain&type=grpc&security=tls&serviceName=$vlesspath&encryption=none#$domain-vless(gRPC) 
+
 $(date) $domain trojan:
 password: $uuid
 path: $trojanpath
-nowsLink: trojan://$uuid@$domain:443#$domain-trojan
+tcp+tls: trojan://$uuid@$domain:443#$domain-trojan
+ws+tls : trojan-go://$uuid@$domain:443?sni=&host=$domain&type=ws&security=tls&path=$trojanpath#$domain-trojan(ws) 
 
-$(date) $domain shadowsocks:   
+$(date) $domain shadowsocks+v2ray-plugin:   
 ss://$(echo -n "${ssmethod}:${uuid}" | base64 | tr "\n" " " | sed s/[[:space:]]//g | tr -- "+/=" "-_ " | sed -e 's/ *$//g')@${domain}:443?plugin=v2ray-plugin%3Bpath%3D%2F${shadowsockspath}%3Bhost%3D${domain}%3Btls#${domain}
 
 $(date) $domain naiveproxy:

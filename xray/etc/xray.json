@@ -37,6 +37,11 @@
             "streamSettings": {"network": "h2","httpSettings": {"host": ["$domain"],"path": "/$vlessh2path"}}
         },
         {
+            "port": 50008,"listen": "127.0.0.1","protocol": "vless",
+            "settings": {"clients": [{"id": "$uuid"}],"decryption": "none"},
+            "streamSettings": {"network": "grpc","grpcSettings": {"serviceName": "$vlesspath"}}
+        },
+        {
             "listen": "@vmesstcp","protocol": "vmess",
             "settings": {"clients": [{"id": "$uuid"}]},
             "streamSettings": {"network": "tcp","security": "none","tcpSettings": {"header": {"type": "http","request": {"path": ["/$vmesstcppath"]}}}}

@@ -56,6 +56,20 @@
                                           }]
                                         }],
                                         "terminal": true
+                                    },
+                                    {
+                                      "match": [{"path": ["/$vlesspath/*"]}],
+                                      "handle": [{
+                                        "handler": "reverse_proxy",
+                                        "transport": {
+                                          "protocol": "http",
+                                          "versions": ["h2c"]
+                                        },
+                                        "upstreams": [{
+                                          "dial": "127.0.0.1:50008"
+                                        }]
+                                      }],
+                                      "terminal": true
                                     }
                                 ]
                             }]
