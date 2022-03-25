@@ -46,7 +46,7 @@ function config_xray_caddy(){
            -e "s/\$vlessh2path/$vlessh2path/g" -e "s/\$vmesstcppath/$vmesstcppath/g" -e "s/\$vmesswspath/$vmesswspath/g" -e "s/\$vmessh2path/$vmessh2path/g" \
            -e "s/\$shadowsockspath/$shadowsockspath/g" -e "s/\$domain/$domain/g" /usr/local/etc/xray/config.json
     # caddyconfig
-    wget -qO- $configcaddy | sed -e "s/\$domain/$domain/g" -e "s/\$uuid/$uuid/g" -e "s/\$vlessh2path/$vlessh2path/g" -e "s/\$vlesspath/$vlesspath/g" -e "s/\$vmessh2path/$vmessh2path/g" >/etc/caddy/Caddyfile.json
+    wget -qO- $configcaddy | sed -e "s/\$domain/$domain/g" -e "s/\$uuid/$uuid/g" -e "s/\$vlessh2path/$vlessh2path/g" -e "s/\$vlesspath/$vlesspath/g" -e "s/\$vmesswspath/$vmesswspath/g" -e "s/\$vmessh2path/$vmessh2path/g" >/etc/caddy/Caddyfile.json
 }
 
 function cert_acme(){
@@ -95,11 +95,29 @@ EOF
 vmessh2info="$(echo "vmess://$(base64 -w 0 $TMPFILE)")"
 
     cat <<EOF >$TMPFILE
+{
+  "v": "2",
+  "ps": "$domain-grpc",
+  "add": "$domain",
+  "port": "443",
+  "id": "$uuid",
+  "aid": "0",
+  "net": "grpc",
+  "type": "none",
+  "host": "none",
+  "path": "$vmesswspath",
+  "tls": "tls"
+}
+EOF
+vmessgrpcinfo="$(echo "vmess://$(base64 -w 0 $TMPFILE)")"
+
+    cat <<EOF >$TMPFILE
 $(date) $domain vmess:
 uuid: $uuid
 tcppath: $vmesstcppath
 ws+tls: $vmesswsinfo
 h2+tls: $vmessh2info
+gRPC  : $vmessgrpcinfo
 
 $(date) $domain vless:
 uuid: $uuid
