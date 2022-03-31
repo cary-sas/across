@@ -124,7 +124,7 @@ uuid: $uuid
 wspath: $vlesspath
 h2path: $vlessh2path
 serviceName: $vlesspath
-xtls  : vless://$uuid@$domain:443?security=xtls&flow=xtls-rprx-direct#$domain-vless(xtls)
+xtls  : vless://$uuid@$domain:443?encryption=none&security=xtls&type=tcp&headerType=none&flow=xtls-rprx-splice#$domain-vless(xtls)
 ws+tls: vless://$uuid@$domain:443?sni=&host=$domain&type=ws&security=tls&path=$vlesspath&encryption=none#$domain-vless(ws) 
 h2+tls: vless://$uuid@$domain:443?sni=&host=$domain&type=h2&security=tls&path=$vlessh2path&encryption=none#$domain-vless(h2) 
 gRPC  : vless://$uuid@$domain:443?sni=&host=$domain&type=grpc&security=tls&serviceName=$vlesspath&encryption=none#$domain-vless(gRPC) 
