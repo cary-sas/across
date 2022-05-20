@@ -22,7 +22,7 @@ configcaddy=${configcaddy:-https://raw.githubusercontent.com/cary-sas/across/mas
 
 function install_xray_caddy(){
     # xray
-    bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install -u root --version 1.4.2
+    bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install -u root
 	
     # install caddy through apt install
     apt install -y debian-keyring debian-archive-keyring apt-transport-https
