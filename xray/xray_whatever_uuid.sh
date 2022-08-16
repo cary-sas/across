@@ -136,7 +136,7 @@ tcp+tls: trojan://$uuid@$domain:443#$domain-trojan
 ws+tls : trojan-go://$uuid@$domain:443?sni=&host=$domain&type=ws&security=tls&path=$trojanpath#$domain-trojan(ws) 
 
 $(date) $domain shadowsocks+v2ray-plugin:   
-ss://$(echo -n "${ssmethod}:${uuid}" | base64 | tr "\n" " " | sed s/[[:space:]]//g | tr -- "+/=" "-_ " | sed -e 's/ *$//g')@${domain}:443?plugin=v2ray-plugin%3Bpath%3D%2F${shadowsockspath}%3Bhost%3D${domain}%3Btls#${domain}
+ss://$(echo -n "${ssmethod}:${uuid}" | base64 | tr "\n" " " | sed s/[[:space:]]//g | tr -- "+/=" "-_ " | sed -e 's/ *$//g')@${domain}:443?plugin=v2ray-plugin%3Bpath%3D%2F${shadowsockspath}%3Bhost%3D${domain}%3Btls%3Bloglevel%3Dnone#${domain}
 
 $(date) $domain naiveproxy:
 probe_resistance: $uuid.com
