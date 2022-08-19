@@ -33,7 +33,7 @@ function install_xray_caddy(){
     caddy_url=https://github.com/lxhao61/integrated-examples/releases	
     caddy_version=$(curl -k -s  $caddy_url | grep /lxhao61/integrated-examples/releases/tag/  | head -1 | awk -F'"' '{print $6}' | awk -F/ '{print $NF}')
 
-    wget --no-check-certificate -O $TMPFILE ${caddy_url}/download/${caddy_version}/caddy_linux_$(dpkg --print-architecture).tar.gz && tar -xf  $TMPFILE -C ./
+    wget --no-check-certificate -O $TMPFILE "${caddy_url}/download/${caddy_version}/caddy-linux-$(dpkg --print-architecture).tar.gz" && tar -xf  $TMPFILE -C ./
     mv caddy /usr/bin/caddy && chmod +x /usr/bin/caddy
  
     sed -i "s/caddy\/Caddyfile$/caddy\/Caddyfile\.json/g" /lib/systemd/system/caddy.service && systemctl daemon-reload
