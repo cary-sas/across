@@ -34,8 +34,8 @@ function install_xray_caddy(){
     apt update
     apt install caddy
     caddy_url=https://github.com/lxhao61/integrated-examples/releases	
-    caddy_version=$(curl -k -s  $caddy_url | grep /lxhao61/integrated-examples/releases/tag/  | head -1 | awk -F'"' '{print $6}' | awk -F/ '{print $NF}')
-
+    #caddy_version=$(curl -k -s  $caddy_url | grep /lxhao61/integrated-examples/releases/tag/  | head -1 | awk -F'"' '{print $6}' | awk -F/ '{print $NF}')
+    caddy_version="20220507"
     wget --no-check-certificate -O $TMPFILE "${caddy_url}/download/${caddy_version}/caddy-linux-$(dpkg --print-architecture).tar.gz" && tar -xf  $TMPFILE -C ./
     mv caddy /usr/bin/caddy && chmod +x /usr/bin/caddy
  
