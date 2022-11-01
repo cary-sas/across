@@ -29,17 +29,17 @@ function install_xray_caddy(){
     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo tee /etc/apt/trusted.gpg.d/caddy-stable.asc
     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
     apt install -y debian-keyring debian-archive-keyring apt-transport-https
-    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor --batch --yes -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
-    apt update
+    apt update -y
     apt install caddy
     caddy_url=https://github.com/lxhao61/integrated-examples/releases	
     #caddy_version=$(curl -k -s  $caddy_url | grep /lxhao61/integrated-examples/releases/tag/  | head -1 | awk -F'"' '{print $6}' | awk -F/ '{print $NF}')
     caddy_version="20220507"
     wget --no-check-certificate -O $TMPFILE "${caddy_url}/download/${caddy_version}/caddy-linux-$(dpkg --print-architecture).tar.gz" && tar -xf  $TMPFILE -C ./
     mv caddy /usr/bin/caddy && chmod +x /usr/bin/caddy
- 
-    sed -i "s/caddy\/Caddyfile$/caddy\/Caddyfile\.json/g" /lib/systemd/system/caddy.service && systemctl daemon-reload
+    mkdir -p "$HOME/tls"
+    sed -i -e "s/caddy\/Caddyfile/caddy\/config\.json/g" -e "s/=caddy/=root/g" /lib/systemd/system/caddy.service && systemctl daemon-reload
 }
 
 function config_xray_caddy(){
@@ -47,22 +47,13 @@ function config_xray_caddy(){
     wget -O /usr/local/etc/xray/config.json $configxray
     sed -i -e "s/\$uuid/$uuid/g" -e "s/\$xtlsflow/$xtlsflow/g" -e "s/\$ssmethod/$ssmethod/g" -e "s/\$trojanpath/$trojanpath/g" -e "s/\$vlesspath/$vlesspath/g" \
            -e "s/\$vlessh2path/$vlessh2path/g" -e "s/\$vmesstcppath/$vmesstcppath/g" -e "s/\$vmesswspath/$vmesswspath/g" -e "s/\$vmessh2path/$vmessh2path/g" \
-           -e "s/\$shadowsockspath/$shadowsockspath/g" -e "s/\$domain/$domain/g" /usr/local/etc/xray/config.json
+           -e "s/\$shadowsockspath/$shadowsockspath/g" -e "s/\$domain/$domain/g" -e "s:\$HOME:$HOME:g" /usr/local/etc/xray/config.json
     # caddyconfig
-    wget -qO- $configcaddy | sed -e "s/\$domain/$domain/g" -e "s/\$uuid/$uuid/g" -e "s/\$vlessh2path/$vlessh2path/g" -e "s/\$vlesspath/$vlesspath/g" -e "s/\$vmesswspath/$vmesswspath/g" -e "s/\$vmessh2path/$vmessh2path/g" >/etc/caddy/Caddyfile.json
-}
-
-function cert_acme(){
-    apt install socat -y
-    curl https://get.acme.sh | sh && source  ~/.bashrc
-    ~/.acme.sh/acme.sh --upgrade --auto-upgrade
-    ~/.acme.sh/acme.sh --register-account -m my@example.com
-    ~/.acme.sh/acme.sh --issue -d $domain --standalone --pre-hook "systemctl stop caddy xray" --post-hook "~/.acme.sh/acme.sh --installcert -d $domain --fullchain-file /usr/local/etc/xray/$domain.crt --key-file /usr/local/etc/xray/$domain.key --reloadcmd \"systemctl restart caddy xray\""
-    ~/.acme.sh/acme.sh --installcert -d $domain --fullchain-file /usr/local/etc/xray/$domain.crt --key-file /usr/local/etc/xray/$domain.key --reloadcmd "systemctl restart xray"
+    wget -qO- $configcaddy | sed -e "s:\$HOME:$HOME:g" -e "s/\$domain/$domain/g" -e "s/\$uuid/$uuid/g" -e "s/\$vlessh2path/$vlessh2path/g" -e "s/\$vlesspath/$vlesspath/g" -e "s/\$vmesswspath/$vmesswspath/g" -e "s/\$vmessh2path/$vmessh2path/g" >/etc/caddy/config.json
 }
 
 function start_info(){
-    systemctl enable caddy xray && systemctl restart caddy xray && sleep 3 && systemctl status caddy xray | grep -A 2 "service"
+    systemctl enable caddy xray && systemctl restart caddy && sleep 30 && systemctl restart xray && sleep 3 && systemctl status caddy xray | grep -A 2 "service"
     cat <<EOF >$TMPFILE
 {
   "v": "2",
@@ -154,8 +145,8 @@ EOF
 function remove_purge(){
     apt purge caddy -y
     bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ remove --purge
-    bash <(curl https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh) --remove; systemctl disable v2ray
-    ~/.acme.sh/acme.sh --uninstall
+ #   bash <(curl https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh) --remove; systemctl disable v2ray
+    rm -rf "$HOME/tls"
     return 0
 }
 
@@ -163,7 +154,6 @@ function main(){
     [[ "$domain" == "remove_purge" ]] && remove_purge && exit 0
     install_xray_caddy
     config_xray_caddy
-    cert_acme
     start_info
 }
 
